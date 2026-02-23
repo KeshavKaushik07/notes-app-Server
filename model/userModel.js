@@ -24,7 +24,7 @@ const userModel = new mongoose.Schema(
             required: [true, "password is Required"]
         },
         phone: {
-            type: String,
+            type: Number,
             required: [true, "phone is Required"]
         },
         profile: {
@@ -33,7 +33,10 @@ const userModel = new mongoose.Schema(
             default: "client",
             enum: ["client", "admin", "vendor", "driver"]
         },
-        notes: [noteSchema]
+        notes: {
+            type : [noteSchema],
+            default : []
+        }
     }
 );
 
