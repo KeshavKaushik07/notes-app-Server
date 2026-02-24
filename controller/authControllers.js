@@ -120,7 +120,7 @@ const login = async (req,resp) =>{
     )
     resp.status(200).send({
         success : true,
-        message :  "Login Successfuly",
+        message :  "Login Successfully",
         user,
         accessToken,
     })

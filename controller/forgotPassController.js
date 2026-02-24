@@ -1,6 +1,8 @@
 const resetModel = require("../model/resetModel");
 const userModel = require("../model/userModel");
 const nodeMailer = require("nodemailer");
+const bcryptjs = require("bcryptjs");
+
 
 const forgotPass = async (req, resp) => {
 
@@ -49,14 +51,15 @@ const forgotPass = async (req, resp) => {
 
         resp.status(200).send({
             success: true,
-            message: "OTP sent Successfuly",
+            message: "OTP sent Successfully",
             to: email
         })
     }
     catch (err) {
         resp.status(500).send({
             success: false,
-            message: "error in forgotPass API"
+            message: "error in forgotPass API",
+            err
         });
     }
 
@@ -64,9 +67,20 @@ const forgotPass = async (req, resp) => {
 }
 
 const resetPass = async (req, resp) => {
-    const { email , OTP } = req.body;
+    try{
+        const { email , OTP , password } = req.body;
 
     const resetEntry = await resetModel.findOne({ email });
+
+    if(!resetEntry)
+    {
+        resp.status(500).send({
+            success: false,
+            message: "OTP Expired"
+        });
+        
+        return ;
+    }
 
     if ( OTP != resetEntry.OTP )
     {
@@ -74,6 +88,27 @@ const resetPass = async (req, resp) => {
             success: false,
             message: "Wrong OTP"
         });
+
+        return ;
+    }
+     
+    const hashPassword = await bcryptjs.hash(password,10);
+
+    await userModel.updateOne({ email },{ password : hashPassword});
+
+    resp.status(200).send({
+        success : true,
+        message : "passwod reset successfully"
+    })
+
+    }
+    catch(err)
+    {
+        resp.status(500).send({
+            success: false,
+            message: "error in resetPass API",
+            err
+        });   
     }
 
 }
