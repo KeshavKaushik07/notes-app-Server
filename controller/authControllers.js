@@ -27,9 +27,9 @@ const registration = async (req, resp) => {
             return ;
         }
 
-        // const hashPasswod = await bcryptjs.hash(password,10);
+        const hashPassword = await bcryptjs.hash(password,10);
 
-        const user = await userModel.create({ userName, email, password, phone, profile });
+        const user = await userModel.create({ userName, email, password:hashPassword , phone, profile });
         user.password = undefined;
 
         resp.status(200).send({
@@ -57,7 +57,7 @@ const login = async (req,resp) =>{
     {
         resp.status(500).send({
             success : false,
-            message : "All field Requires"
+            message : "All field are Requires"
         });
 
         return ;
@@ -75,23 +75,54 @@ const login = async (req,resp) =>{
         return ;
     }
 
-    // const compare = await bcryptjs.compare(password,user.password);
-
-    if(password != user.password)
+    const compare = await bcryptjs.compare(password,user.password);
+    // console.log(compare);
+    if(!compare)
     {
-        resp.status(500).send({
+         resp.status(500).send({
             success : false,
-            message : "Incrroct Password"
+            message : "passwod doesn't match"
         });
 
         return ;
     }
 
-    user.pssword = undefined;
+    // if(password != user.password)
+    // {
+    //     resp.status(500).send({
+    //         success : false,
+    //         message : "Incrroct Password"
+    //     });
+
+    //     return ;
+    // }
+    const accessToken = JWT.sign(
+        {id:user._id},
+        process.env.ACCESS_JWT_SECRET,
+        { expiresIn : "10m"}
+    );
+
+    const refreshToken = JWT.sign(
+        {id:user._id},
+        process.env.REFRESH_JWT_SECRET,
+        { expiresIn : "7d"}
+    ) 
+
+    user.password = undefined;
+
+    resp.cookie(
+        "refreshToken",
+        {
+            httpOnly : true,
+            secure : true,
+            sameSite : "strict",
+        }
+    )
     resp.status(200).send({
         success : true,
         message :  "Login Successfuly",
-        user
+        user,
+        accessToken,
     })
 
    }
