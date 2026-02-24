@@ -64,6 +64,18 @@ const forgotPass = async (req, resp) => {
 }
 
 const resetPass = async (req, resp) => {
+    const { email , OTP } = req.body;
+
+    const resetEntry = await resetModel.findOne({ email });
+
+    if ( OTP != resetEntry.OTP )
+    {
+         resp.status(500).send({
+            success: false,
+            message: "Wrong OTP"
+        });
+    }
+
 }
 
 module.exports = { forgotPass, resetPass }
