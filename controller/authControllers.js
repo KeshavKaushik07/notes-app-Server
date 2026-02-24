@@ -67,7 +67,7 @@ const login = async (req,resp) =>{
 
     if(!user)
     {
-        resp.status(500).send({
+        resp.status(404).send({
             success : false,
             message : "Email doesn't Exist"
         });

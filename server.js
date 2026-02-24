@@ -15,6 +15,7 @@ app.use(express.json());
 app.use(express.text());
 
 app.use("/Notes/api/auth",require("./Routes/authRoutes"));
+app.use("/Notes/api/forgotpass",require("./Routes/forgotPassRoute"));
 
 const port = process.env.PORT || 5000;
 app.listen(port ,()=>{
