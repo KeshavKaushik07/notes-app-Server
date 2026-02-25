@@ -13,7 +13,7 @@ const registration = async (req, resp) => {
                 message: "All fields are Reqired"
             });
 
-            return ;
+            return;
         }
 
         const exist = await userModel.findOne({ email });
@@ -24,12 +24,12 @@ const registration = async (req, resp) => {
                 message: "User Aready Exists"
             });
 
-            return ;
+            return;
         }
 
-        const hashPassword = await bcryptjs.hash(password,10);
+        const hashPassword = await bcryptjs.hash(password, 10);
 
-        const user = await userModel.create({ userName, email, password:hashPassword , phone, profile });
+        const user = await userModel.create({ userName, email, password: hashPassword, phone, profile });
         user.password = undefined;
 
         resp.status(200).send({
@@ -48,91 +48,127 @@ const registration = async (req, resp) => {
     }
 }
 
-const login = async (req,resp) =>{
-   try{
+const login = async (req, resp) => {
+    try {
 
-     const { email , password } = req.body;
-    
-    if( !email || !password)
-    {
-        resp.status(500).send({
-            success : false,
-            message : "All field are Requires"
-        });
+        const { email, password } = req.body;
 
-        return ;
-    }
+        if (!email || !password) {
+            resp.status(500).send({
+                success: false,
+                message: "All field are Requires"
+            });
 
-    const user = await userModel.findOne({ email });
-
-    if(!user)
-    {
-        resp.status(404).send({
-            success : false,
-            message : "Email doesn't Exist"
-        });
-
-        return ;
-    }
-
-    const compare = await bcryptjs.compare(password,user.password);
-    // console.log(compare);
-    if(!compare)
-    {
-         resp.status(500).send({
-            success : false,
-            message : "passwod doesn't match"
-        });
-
-        return ;
-    }
-
-    // if(password != user.password)
-    // {
-    //     resp.status(500).send({
-    //         success : false,
-    //         message : "Incrroct Password"
-    //     });
-
-    //     return ;
-    // }
-    const accessToken = JWT.sign(
-        {id:user._id},
-        process.env.ACCESS_JWT_SECRET,
-        { expiresIn : "10m"}
-    );
-
-    const refreshToken = JWT.sign(
-        {id:user._id},
-        process.env.REFRESH_JWT_SECRET,
-        { expiresIn : "7d"}
-    ) 
-
-    user.password = undefined;
-
-    resp.cookie(
-        "refreshToken",
-        {
-            httpOnly : true,
-            secure : true,
-            sameSite : "strict",
+            return;
         }
-    )
-    resp.status(200).send({
-        success : true,
-        message :  "Login Successfully",
-        user,
-        accessToken,
-    })
 
-   }
-   catch(err){
-    resp.status(500).send({
-        success : false,
-        message: "error in login API",
-        err
-    })
-   }
+        const user = await userModel.findOne({ email });
+
+        if (!user) {
+            resp.status(404).send({
+                success: false,
+                message: "Email doesn't Exist"
+            });
+
+            return;
+        }
+
+        const compare = await bcryptjs.compare(password, user.password);
+        // console.log(compare);
+        if (!compare) {
+            resp.status(500).send({
+                success: false,
+                message: "passwod doesn't match"
+            });
+
+            return;
+        }
+
+        // if(password != user.password)
+        // {
+        //     resp.status(500).send({
+        //         success : false,
+        //         message : "Incrroct Password"
+        //     });
+
+        //     return ;
+        // }
+        const accessToken = JWT.sign(
+            { id: user._id },
+            process.env.ACCESS_JWT_SECRET,
+            { expiresIn: "10m" }
+        );
+
+        const refreshToken = JWT.sign(
+            { id: user._id },
+            process.env.REFRESH_JWT_SECRET,
+            { expiresIn: "7d" }
+        )
+
+        user.password = undefined;
+
+        resp.cookie(
+            "refreshToken",
+            refreshToken,
+            {
+                httpOnly: true,
+                secure: true,
+                sameSite: "strict",
+            }
+        )
+        resp.status(200).send({
+            success: true,
+            message: "Login Successfully",
+            user,
+            accessToken,
+        })
+
+    }
+    catch (err) {
+        resp.status(500).send({
+            success: false,
+            message: "error in login API",
+            err
+        })
+    }
 }
 
-module.exports = {registration,login};
+const refreshToken = async (req, resp) => {
+    try {
+        const token = req.cookies.refreshToken;
+
+        if (!token) {
+            return resp.status(401).send({
+                success: false,
+                message: "Provide Refresh Token"
+            });
+        }
+
+        JWT.verify(token, process.env.REFRESH_JWT_SECRET, (err, decode) => {
+            if (err) {
+                return resp.status(401).send({
+                    success: false,
+                    message: "Invalid or Expired Refresh Token"
+                });
+            } else {
+                const newAccessToken = JWT.sign(
+                    { id: decode.id },
+                    process.env.ACCESS_JWT_SECRET,
+                    { expiresIn: "10m" }
+                );
+                return resp.status(200).send({
+                    success: true,
+                    message: "successfully generate access Token",
+                    accessToken: newAccessToken
+                })
+            }
+        })
+    } catch (err) {
+        resp.status(500).send({
+            success: false,
+            message: "error in refresh API",
+            err
+        })
+    }
+}
+module.exports = { registration, login, refreshToken };

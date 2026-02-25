@@ -4,6 +4,7 @@ const app = express();
 const dotenv = require("dotenv");
 const cors = require("cors");
 const connectDB = require("./DbConnect/MongooseDB");
+const cookieParser = require("cookie-parser");
 
 dotenv.config();
 
@@ -11,9 +12,11 @@ connectDB();
 
 app.use(cors());
 
+app.use(cookieParser());//insted of manually getting cookie from raw data we use cookie parser to get  
 app.use(express.json());
 app.use(express.text());
 
+app.use("/Notes/api/test",require("./Routes/testRoute"));
 app.use("/Notes/api/auth",require("./Routes/authRoutes"));
 app.use("/Notes/api/forgotpass",require("./Routes/forgotPassRoute"));
 
