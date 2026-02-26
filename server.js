@@ -6,19 +6,19 @@ const cors = require("cors");
 const connectDB = require("./DbConnect/MongooseDB");
 const cookieParser = require("cookie-parser");
 
-dotenv.config();
+dotenv.config();// speading .env file to all server
 
-connectDB();
+connectDB();// connecting to Mongo DB
 
-app.use(cors());
+app.use(cors());// handle Corse Error
 
 app.use(cookieParser());//insted of manually getting cookie from raw data we use cookie parser to get  
-app.use(express.json());
-app.use(express.text());
+app.use(express.json());// parse evey json data
+app.use(express.text());// parse every text data
 
-app.use("/Notes/api/test",require("./Routes/testRoute"));
-app.use("/Notes/api/auth",require("./Routes/authRoutes"));
-app.use("/Notes/api/forgotpass",require("./Routes/forgotPassRoute"));
+app.use("/Notes/api/test",require("./Routes/testRoute"));// Just for Testing
+app.use("/Notes/api/auth",require("./Routes/authRoutes"));// for Login , Sign up and to get Refresh Token
+app.use("/Notes/api/forgotpass",require("./Routes/forgotPassRoute"));// for forget password and otp Verification 
 
 const port = process.env.PORT || 5000;
 app.listen(port ,()=>{
