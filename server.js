@@ -19,6 +19,7 @@ app.use(express.text());// parse every text data
 app.use("/Notes/api/test",require("./Routes/testRoute"));// Just for Testing
 app.use("/Notes/api/auth",require("./Routes/authRoutes"));// for Login , Sign up and to get Refresh Token
 app.use("/Notes/api/forgotpass",require("./Routes/forgotPassRoute"));// for forget password and otp Verification 
+app.use("/Notes/api/usernote",require("./Routes/crudRoutes"));
 
 const port = process.env.PORT || 5000;
 app.listen(port ,()=>{
