@@ -4,7 +4,8 @@ const mongoose = require("mongoose");
 const createNote = async (req,resp) => {
     try{
 
-        const { userId , title , content } = req.body;
+        const {  userId } = req.user;
+        const { title , content } = req.body;
 
         const newNote = {
             _id : new mongoose.Types.ObjectId() ,
@@ -12,11 +13,18 @@ const createNote = async (req,resp) => {
             content
         }
 
-    await userModel.findByIdAndUpdate(userId,{
+   const user =  await userModel.findByIdAndUpdate(userId,{
         $push : {
             notes : newNote
         }
     });
+
+    if(!user){
+        return resp.status(404).send({
+            success : false,
+            message : "user not found"
+        })
+    }
 
     resp.status(200).send({
         success : true,
