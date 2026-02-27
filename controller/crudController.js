@@ -43,6 +43,39 @@ const createNote = async (req,resp) => {
 }
 
 const readNote = async (req,resp) => {
+    try{
+
+        const { userId } = req.user;
+
+        // console.log(userId);
+
+        const user = await userModel.findById( userId );
+
+        if(!user)
+        {
+            return resp.status(404).send({
+                success : false,
+                message : "user not found"
+            })
+        }
+
+        // console.log(user);
+
+        resp.status(200).send({
+            success : true,
+            messgae : "All Documents",
+            notes : user.notes
+        })
+
+    }
+    catch(err)
+    {
+        resp.status(500).send({
+            success : false,
+            message : "error in Read API",
+            err
+        })
+    }
 }
 
 const updateNote = async (req,resp) => {
