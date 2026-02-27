@@ -51,5 +51,8 @@ const updateNote = async (req,resp) => {
 const deleteNote = async (req,resp) => {
 }
 
+const deleteAllNotes = async (req,resp) => {
+}
 
-module.exports = { createNote , readNote , updateNote , deleteNote }
+
+module.exports = { createNote , readNote , updateNote , deleteNote , deleteAllNotes }
