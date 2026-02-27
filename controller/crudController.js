@@ -172,6 +172,40 @@ const deleteNote = async (req, resp) => {
 }
 
 const deleteAllNotes = async (req, resp) => {
+    try{
+
+        const { userId } = req.user;
+
+        const user = await userModel.findByIdAndUpdate(
+            userId,
+            {
+                $set : {
+                    notes : []
+                }
+            },
+            { new : true }
+        );
+
+        if(!user)
+        {
+            return resp.status(404).send({
+                success : false,
+                message : "user not Found"
+            });
+        }
+
+        resp.status(200).send({
+            success : true,
+            message : "All notes are deleted"
+        })
+    }catch(err)
+    {
+        resp.status(500).send({
+            success : false,
+            message : "error in Delete All API",
+            err
+        });
+    }
 }
 
 
