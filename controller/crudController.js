@@ -129,6 +129,46 @@ const updateNote = async (req, resp) => {
 }
 
 const deleteNote = async (req, resp) => {
+    try{
+
+        const { userId } = req.user;
+
+        const { noteId } = req.body;
+
+        console.log(userId,noteId);
+
+        const user = await userModel.findByIdAndUpdate(
+            userId,
+            {
+                $pull : {
+                    notes : { _id : noteId}
+                }
+            }
+        );
+
+        console.log(user);
+
+        if(!user)
+        {
+            return resp.status(404).send({
+                success : false,
+                message : "user not found"
+            });
+        }
+
+        resp.status(200).send({
+            success : true,
+            message : "note Delete successfully"
+        });
+
+    }catch(err)
+    {
+        resp.status(500).send({
+            success : false,
+            message : "error in Delete API",
+            err
+        })
+    }
 }
 
 const deleteAllNotes = async (req, resp) => {
