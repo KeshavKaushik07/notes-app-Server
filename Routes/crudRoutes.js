@@ -4,14 +4,14 @@ const verifiy = require("../middleware/verifiyToken");
 
 const router = express.Router();
 
-router.get("/read",verifiy,readNote);
+router.get("/readnote",verifiy,readNote);
 
-router.post("/create",verifiy,createNote);
+router.post("/createnote",verifiy,createNote);
 
-router.post("/update",verifiy,updateNote);
+router.post("/updatenote",verifiy,updateNote);
 
-router.post("/delete",verifiy,deleteNote);
+router.post("/deletenote",verifiy,deleteNote);
 
-router.post("/deleteall",verifiy,deleteAllNotes);
+router.post("/deleteallnote",verifiy,deleteAllNotes);
 
 module.exports = router;
