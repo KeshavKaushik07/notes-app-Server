@@ -19,7 +19,7 @@ const getAllUsers = async (req, resp) => {
             success : true,
             message : "all user data",
             user
-        })
+        });
     }catch(err)
     {
         resp.status(500).send({
@@ -30,7 +30,26 @@ const getAllUsers = async (req, resp) => {
     }
 }
 const deleteUser = async (req, resp) => {
-    try{}catch(err)
+    try{
+
+        const { id } = req.params;
+
+        const user = await userModel.findByIdAndDelete(id);
+        // console.log(user);
+        if(!user)
+        {
+            return resp.status(404).send({
+                success : false,
+                message : "users not found"
+            });
+        }
+
+        resp.status(200).send({
+            success : true,
+            message : `delete user with id:${id}`
+        });
+
+    }catch(err)
     {
         resp.status(500).send({
             success : false,
@@ -40,7 +59,57 @@ const deleteUser = async (req, resp) => {
     }
 }
 const changeProfile = async (req, resp) => {
-    try{}catch(err)
+    try{
+
+        const { id } = req.params;
+
+        const user = await userModel.findById(id);
+
+        // if(req.user.userId == id )
+        // {
+        //     return resp.status(400).send({
+        //         success : false,
+        //         message : "can't change your own role"
+        //     })
+        // }// prevent admin to change their own role
+
+        if(!user)
+        {
+            return resp.status(404).send({
+                success : false,
+                message : "users not found"
+            });
+        }
+
+        if(user.profile === "client")
+        {
+            await userModel.findByIdAndUpdate(
+                id,
+                {
+                    profile : "admin"
+                },
+                {
+                    new : true
+                }
+            );
+        }else {
+            await userModel.findByIdAndUpdate(
+                id,
+                {
+                    profile : "client"
+                },
+                {
+                    new : true
+                }
+            );
+        }
+
+        resp.status(200).send({
+            success : true,
+            message : `change profile to ${user.profile === "client" ? "admin":"client"}`
+        });
+
+    }catch(err)
     {
         resp.status(500).send({
             success : false,

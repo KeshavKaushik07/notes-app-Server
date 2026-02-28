@@ -6,14 +6,14 @@ const { getAllUsers, deleteUser, changeProfile, changePasswod, getAllNotes, getU
 const router = express.Router();
 
 router.get("/users", getAllUsers);
-router.delete("/users/:id", deleteUser);
+router.delete("/user/:id", deleteUser);
 router.patch("/user/:id/profile", changeProfile);
 router.patch("/user/:id/password", changePasswod);
 
 router.get("/notes", getAllNotes);
-router.get("/users/:id/notes", getUserNote);
-router.delete("/notes/:id", deleteNote);
+router.get("/user/:id/note", getUserNote);
+router.delete("/note/:id", deleteNote);
 
-router.delete("/notes/deleteall", deleteAllNote);
+router.delete("/note/deleteall", deleteAllNote);
 
 module.exports = router;
