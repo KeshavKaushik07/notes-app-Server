@@ -16,12 +16,13 @@ app.use(cookieParser());//insted of manually getting cookie from raw data we use
 app.use(express.json());// parse evey json data
 app.use(express.text());// parse every text data
 
-app.use("/Notes/api/test",require("./Routes/testRoute"));// Just for Testing
-app.use("/Notes/api/auth",require("./Routes/authRoutes"));// for Login , Sign up and to get Refresh Token
-app.use("/Notes/api/forgotpass",require("./Routes/forgotPassRoute"));// for forget password and otp Verification 
-app.use("/Notes/api/usernote",require("./Routes/crudRoutes"));
+app.use("/Notes/api/test", require("./Routes/testRoute"));// Just for Testing
+app.use("/Notes/api/auth", require("./Routes/authRoutes"));// for Login , Sign up and to get Refresh Token
+app.use("/Notes/api/forgotpass", require("./Routes/forgotPassRoute"));// for forget password and otp Verification 
+app.use("/Notes/api/usernote", require("./Routes/crudRoutes")); // Do CRUD by user 
+app.use("/Notes/api/admin", require("./Routes/adminRouts"));// DO CRUD by admin
 
 const port = process.env.PORT || 5000;
-app.listen(port ,()=>{
+app.listen(port, () => {
     console.log(`server is running on port ${port}`.bgGreen);
 })
