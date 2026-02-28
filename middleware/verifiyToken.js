@@ -4,7 +4,17 @@ module.exports = async (req, resp, next) => {
     try {
         // console.log("header key : ", req?.headers["authorization"]);
         // console.log(req.cookies.refreshToken);
-        const token = req.headers["authorization"].split(" ")[1];
+        const authorization = req.headers["authorization"];
+
+        if(!authorization)
+        {
+            return resp.status(401).send({
+                success : false,
+                message : "NO token Provided"
+            });
+        }
+
+        const token = authorization.split(" ")[1];
         // console.log("token is : ", token);
 
         JWT.verify(token, process.env.ACCESS_JWT_SECRET, (err, decode) => {
