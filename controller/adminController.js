@@ -171,7 +171,27 @@ const changePasswod = async (req, resp) => {
     }
 }
 const getAllNotes = async (req, resp) => {
-    try{}catch(err)
+    try{
+
+        const notes = await userModel.aggregate([
+            { $unwind : "$notes" },
+            { $replaceRoot : { newRoot : "$notes" } }
+        ]);
+
+        if(!notes)
+        {
+            return resp.status(404).send({
+                success : false,
+                message : "Can't get notes"
+            });
+        }
+
+        resp.status(200).send({
+            success : true,
+            message : "All Notes",
+            notes
+        })
+    }catch(err)
     {
         resp.status(500).send({
             success : false,
