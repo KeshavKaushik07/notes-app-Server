@@ -3,65 +3,71 @@ const bcryptjs = require("bcryptjs");
 
 
 const getAllUsers = async (req, resp) => {
-    try{
+    try {
 
         const user = await userModel.find().select("-notes");// get every user and exclude notes key of every user
 
-        if(!user)
-        {
+        if (!user) {
             return resp.status(404).send({
-                success : false,
-                message : "users not found"
+                success: false,
+                message: "users not found"
             });
         }
 
         // console.log(user);
 
         resp.status(200).send({
-            success : true,
-            message : "all user data",
+            success: true,
+            message: "all user data",
             user
         });
-    }catch(err)
-    {
+    } catch (err) {
         resp.status(500).send({
-            success : false,
-            message : "error in getting all users",
+            success: false,
+            message: "error in getting all users",
             err
         })
     }
 }
 const deleteUser = async (req, resp) => {
-    try{
+    try {
 
         const { id } = req.params;
 
+        const { userId } = req.user;
+
+        if(id == userId)
+        {
+            return resp.status(401).send({
+                success : false,
+                message : "deletion of admin is forbidden"
+            })
+        }
+
         const user = await userModel.findByIdAndDelete(id);
         // console.log(user);
-        if(!user)
-        {
+        if (!user) {
             return resp.status(404).send({
-                success : false,
-                message : "users not found"
+                success: false,
+                message: "users not found"
             });
         }
 
         resp.status(200).send({
-            success : true,
-            message : `delete user with id:${id}`
+            success: true,
+            message: `delete user with id:${id}`
         });
 
-    }catch(err)
-    {
+    } catch (err) {
         resp.status(500).send({
-            success : false,
-            message : "error in deleting user",
+            success: false,
+            message: "error in deleting user",
             err
         })
     }
 }
 const changeProfile = async (req, resp) => {
-    try{
+    try {
 
         const { id } = req.params;
 
@@ -75,201 +81,202 @@ const changeProfile = async (req, resp) => {
         //     })
         // }// prevent admin to change their own role
 
-        if(!user)
-        {
+        if (!user) {
             return resp.status(404).send({
-                success : false,
-                message : "users not found"
+                success: false,
+                message: "users not found"
             });
         }
 
-        if(user.profile === "client")
-        {
+        if (user.profile === "client") {
             await userModel.findByIdAndUpdate(
                 id,
                 {
-                    profile : "admin"
+                    profile: "admin"
                 },
                 {
-                    new : true
+                    new: true
                 }
             );
-        }else {
+        } else {
             await userModel.findByIdAndUpdate(
                 id,
                 {
-                    profile : "client"
+                    profile: "client"
                 },
                 {
-                    new : true
+                    new: true
                 }
             );
         }
 
         resp.status(200).send({
-            success : true,
-            message : `change profile to ${user.profile === "client" ? "admin":"client"}`
+            success: true,
+            message: `change profile to ${user.profile === "client" ? "admin" : "client"}`
         });
 
-    }catch(err)
-    {
+    } catch (err) {
         resp.status(500).send({
-            success : false,
-            message : "error in changing profile",
+            success: false,
+            message: "error in changing profile",
             err
         })
     }
 }
 const changePasswod = async (req, resp) => {
-    try{
+    try {
 
         const { id } = req.params;
         const { password } = req.body;
 
         // console.log(password);
 
-        if(!password || password.length < 6)
-        {
+        if (!password || password.length < 6) {
             return resp.status(401).send({
-                success : false,
-                message : "password lenght should be greater than 6"
+                success: false,
+                message: "password lenght should be greater than 6"
             })
         }
 
-        const newPassword = await bcryptjs.hash(password,10);
+        const newPassword = await bcryptjs.hash(password, 10);
 
         const user = await userModel.findByIdAndUpdate(
             id,
             {
-                $set:{
-                    password:newPassword
+                $set: {
+                    password: newPassword
                 }
             }
         );
 
-        if(!user)
-        {
+        if (!user) {
             return resp.status(404).send({
-                success : false,
-                message : "user not found"
+                success: false,
+                message: "user not found"
             });
         }
 
         resp.status(200).send({
-            success : true,
-            message : `password updated of id ${id}`
+            success: true,
+            message: `password updated of id ${id}`
         });
-        
-        
-    }catch(err)
-    {
+
+
+    } catch (err) {
         resp.status(500).send({
-            success : false,
-            message : "error in changing password",
+            success: false,
+            message: "error in changing password",
             err
         })
     }
 }
 const getAllNotes = async (req, resp) => {
-    try{
+    try {
 
         const notes = await userModel.aggregate([
-            { $unwind : "$notes" },
-            { $replaceRoot : { newRoot : "$notes" } }
+            { $unwind: "$notes" },
+            { $replaceRoot: { newRoot: "$notes" } }
         ]);
 
-        if(!notes)
-        {
+        if (!notes) {
             return resp.status(404).send({
-                success : false,
-                message : "Can't get notes"
+                success: false,
+                message: "Can't get notes"
             });
         }
 
         resp.status(200).send({
-            success : true,
-            message : "All Notes",
+            success: true,
+            message: "All Notes",
             notes
         })
-    }catch(err)
-    {
+    } catch (err) {
         resp.status(500).send({
-            success : false,
-            message : "error in getting all notes",
+            success: false,
+            message: "error in getting all notes",
             err
         })
     }
 }
 const getUserNote = async (req, resp) => {
-    try{
+    try {
 
         const { id } = req.params;
 
-        const userNote  = await userModel.findById(id).select("notes");
+        const userNote = await userModel.findById(id).select("notes");
 
-        if(!userNote)
-        {
-           return resp.status(404).send({
-                success : false,
-                message : "Can't get notes"
-            }); 
+        if (!userNote) {
+            return resp.status(404).send({
+                success: false,
+                message: "Can't get notes"
+            });
         }
 
         resp.status(200).send({
-            success : true,
-            message : `notes of user id : ${id}`,
-            notes : userNote.notes
+            success: true,
+            message: `notes of user id : ${id}`,
+            notes: userNote.notes
         });
-    }catch(err)
-    {
+    } catch (err) {
         resp.status(500).send({
-            success : false,
-            message : "error in getting note",
+            success: false,
+            message: "error in getting note",
             err
         })
     }
 }
 const deleteNote = async (req, resp) => {
-    try{
+    try {
 
-        const { id , noteId } = req.params;
+        const { id, noteId } = req.params;
 
         const note = await userModel.findByIdAndUpdate(
             id,
             {
-                $pull : {
-                    notes : { _id : noteId }
+                $pull: {
+                    notes: { _id: noteId }
                 }
             }
         );
 
-        if(!note)
-        {
+        if (!note) {
             return resp.status(404).send({
-                success : false,
-                message : "failed to delete note"
-            }); 
+                success: false,
+                message: "failed to delete note"
+            });
         }
 
         resp.status(200).send({
-            success : true,
-            message : "note deleted"
+            success: true,
+            message: "note deleted"
         })
-    }catch(err)
-    {
+    } catch (err) {
         resp.status(500).send({
-            success : false,
-            message : "error in deleting note",
+            success: false,
+            message: "error in deleting note",
             err
         })
     }
 }
 const deleteAllNote = async (req, resp) => {
-    try{}catch(err)
-    {
+    try {
+
+          await userModel.updateMany(
+            {},
+            {
+                $set: { notes: [] }
+            }
+        );
+
+        resp.status(200).send({
+            success : true,
+            message : "All notes Deleted"
+        });
+
+    } catch (err) {
         resp.status(500).send({
-            success : false,
-            message : "error in deleting all notes",
+            success: false,
+            message: "error in deleting all notes",
             err
         })
     }
