@@ -201,7 +201,26 @@ const getAllNotes = async (req, resp) => {
     }
 }
 const getUserNote = async (req, resp) => {
-    try{}catch(err)
+    try{
+
+        const { id } = req.params;
+
+        const userNote  = await userModel.findById(id).select("notes");
+
+        if(!userNote)
+        {
+           return resp.status(404).send({
+                success : false,
+                message : "Can't get notes"
+            }); 
+        }
+
+        resp.status(200).send({
+            success : true,
+            message : `notes of user id : ${id}`,
+            notes : userNote.notes
+        });
+    }catch(err)
     {
         resp.status(500).send({
             success : false,
