@@ -1,4 +1,6 @@
 const userModel = require("../model/userModel");
+const bcryptjs = require("bcryptjs");
+
 
 const getAllUsers = async (req, resp) => {
     try{
@@ -119,7 +121,47 @@ const changeProfile = async (req, resp) => {
     }
 }
 const changePasswod = async (req, resp) => {
-    try{}catch(err)
+    try{
+
+        const { id } = req.params;
+        const { password } = req.body;
+
+        // console.log(password);
+
+        if(!password || password.length < 6)
+        {
+            return resp.status(401).send({
+                success : false,
+                message : "password lenght should be greater than 6"
+            })
+        }
+
+        const newPassword = await bcryptjs.hash(password,10);
+
+        const user = await userModel.findByIdAndUpdate(
+            id,
+            {
+                $set:{
+                    password:newPassword
+                }
+            }
+        );
+
+        if(!user)
+        {
+            return resp.status(404).send({
+                success : false,
+                message : "user not found"
+            });
+        }
+
+        resp.status(200).send({
+            success : true,
+            message : `password updated of id ${id}`
+        });
+        
+        
+    }catch(err)
     {
         resp.status(500).send({
             success : false,
