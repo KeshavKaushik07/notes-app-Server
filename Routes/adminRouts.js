@@ -10,10 +10,10 @@ router.delete("/user/:id", deleteUser);
 router.patch("/user/:id/profile", changeProfile);
 router.patch("/user/:id/password", changePasswod);
 
-router.get("/notes", getAllNotes);
 router.get("/user/:id/note", getUserNote);
-router.delete("/note/:id", deleteNote);
+router.delete("/user/:id/note/:noteId", deleteNote);
 
+router.get("/notes", getAllNotes);
 router.delete("/note/deleteall", deleteAllNote);
 
 module.exports = router;

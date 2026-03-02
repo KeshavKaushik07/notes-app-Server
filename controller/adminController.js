@@ -230,7 +230,32 @@ const getUserNote = async (req, resp) => {
     }
 }
 const deleteNote = async (req, resp) => {
-    try{}catch(err)
+    try{
+
+        const { id , noteId } = req.params;
+
+        const note = await userModel.findByIdAndUpdate(
+            id,
+            {
+                $pull : {
+                    notes : { _id : noteId }
+                }
+            }
+        );
+
+        if(!note)
+        {
+            return resp.status(404).send({
+                success : false,
+                message : "failed to delete note"
+            }); 
+        }
+
+        resp.status(200).send({
+            success : true,
+            message : "note deleted"
+        })
+    }catch(err)
     {
         resp.status(500).send({
             success : false,
