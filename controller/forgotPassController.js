@@ -66,51 +66,89 @@ const forgotPass = async (req, resp) => {
 
 }
 
-const resetPass = async (req, resp) => {
-    try{
-        const { email , OTP , password } = req.body;
+const OTP = async (req, resp) => {
+    try {
+        const { email, OTP } = req.body;
 
-    const resetEntry = await resetModel.findOne({ email });
+        const resetEntry = await resetModel.findOne({ email });
 
-    if(!resetEntry)
-    {
+        if (!resetEntry) {
+            resp.status(500).send({
+                success: false,
+                message: "OTP Expired"
+            });
+
+            return;
+        }
+
+        if (OTP != resetEntry.OTP) {
+            resp.status(500).send({
+                success: false,
+                message: "Wrong OTP"
+            });
+
+            return;
+        }
+
+        // const hashPassword = await bcryptjs.hash(password,10);
+
+        // await userModel.updateOne({ email },{ password : hashPassword});
+
+        const verifiedUser = await userModel.updateOne({ email }, { verified: true });
+
+        resp.status(200).send({
+            success: true,
+            message: "OTP verified successfully"
+        })
+
+    }
+    catch (err) {
         resp.status(500).send({
             success: false,
-            message: "OTP Expired"
-        });
-        
-        return ;
-    }
-
-    if ( OTP != resetEntry.OTP )
-    {
-         resp.status(500).send({
-            success: false,
-            message: "Wrong OTP"
-        });
-
-        return ;
-    }
-     
-    const hashPassword = await bcryptjs.hash(password,10);
-
-    await userModel.updateOne({ email },{ password : hashPassword});
-
-    resp.status(200).send({
-        success : true,
-        message : "passwod reset successfully"
-    })
-
-    }
-    catch(err)
-    {
-        resp.status(500).send({
-            success: false,
-            message: "error in resetPass API",
+            message: "error in OTP API",
             err
-        });   
+        });
     }
 
 }
 
-module.exports = { forgotPass, resetPass }
+const resetPass = async (req, resp) => {
+    try {
+        const { email, password } = req.body;
+
+        const verifiedUser = await userModel.findOne({ email });
+
+        if (!verifiedUser.verified) {
+            resp.status(500).send({
+                success: false,
+                message: "Only verified user can Access"
+            });
+        }
+
+        const hashPassword = await bcryptjs.hash(password, 10);
+
+        const update = await userModel.updateOne({ email }, { password: hashPassword, verified: false });
+
+        if (!update) {
+            resp.status(500).send({
+                success: false,
+                message: "error in DB"
+            });
+        }
+
+        resp.status(200).send({
+            success: true,
+            message: "Password Chaged successfully"
+        })
+
+    }
+    catch (err) {
+        resp.status(500).send({
+            success: false,
+            message: "error in resetPass API",
+            err
+        });
+    }
+}
+
+module.exports = { forgotPass, OTP, resetPass }

@@ -34,6 +34,10 @@ const userModel = new mongoose.Schema(
             default: "client",
             enum: ["client", "admin", "vendor", "driver"]
         },
+        verified: {
+            type : Boolean,
+            default: false
+        },
         notes: {
             type : [noteSchema],
             default : []
