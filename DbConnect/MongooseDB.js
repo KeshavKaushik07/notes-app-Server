@@ -7,7 +7,7 @@ const connectDB = async () => {
         console.log("connected to DB".bgMagenta);
     }catch(err)
     {
-        console.log("somthing went wrong during connecting to DB"+err.bgRed)
+        console.log(`somthing went wrong during connecting to DB ${err}`.bgRed)
     }
 }
 
